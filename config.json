@@ -1,0 +1,28 @@
+{ 
+    "sitio" : 
+    {
+    	"url" : "http://localhost:3000"
+    }, 
+    "secret" : "$2a$10$GsvafBLCODG.gUNlB987fORJjTiwjiKs42MjAIqTMB3lour44n39K", 
+    "aws" :
+    { 
+        "region": "us-east-1", 
+        "cloudfront" : "http://d2hwtceyqtug4a.cloudfront.net", 
+        "ses" : 
+        {
+             
+            "sendEmail" : "jh.rubiano10@uniandes.edu.co"
+        },
+        "sqs" : 
+        {
+            "Queue" : "workersmarttools", 
+            "queueUrl" : "https://sqs.us-east-1.amazonaws.com/798329219068/workersmarttools"
+        }
+    }, 
+    "db" : 
+    {
+        "database" : "smarttools", 
+        "urldatabase" : "https://dl.dropboxusercontent.com/u/181689/database.json",  
+        "port" : "27017"
+    }
+}

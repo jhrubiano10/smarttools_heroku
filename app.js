@@ -1,5 +1,6 @@
 "use strict";
-const express 			= 	require("express"), 
+const express 			= 	require("express"),
+	  redis   			= 	require("redis"), 
 	  app				= 	express(),
 	  cons 				=	require("consolidate"),
 	  puerto 			= 	process.env.PORT || 3000,
@@ -8,11 +9,15 @@ const express 			= 	require("express"),
 	  LocalStrategy 	= 	require('passport-local').Strategy,
 	  cookieParser 		= 	require('cookie-parser'),
 	  session 			= 	require('express-session'),
+	  redisStore 		= 	require('connect-redis')(session),
 	  bcrypt 			= 	require('bcrypt-nodejs'),
 	  db   				= 	require('./modules/database'),
 	  rutas				=	require('./modules/rutas'), 
-	  fileUpload 		= 	require('express-fileupload'); 
-	//console.log(process.env.AWS_ACCESS_KEY_ID, process.env.PORT);
+	  fileUpload 		= 	require('express-fileupload'), 
+      filessystem 	    =   require('fs'),
+      config 	 	    =   JSON.parse(filessystem.readFileSync('config.json', 'utf8')),
+	  client  			= 	redis.createClient(process.env.REDISCLOUD_URL, {no_ready_check: true});
+
 	//Para el manejo de autenticación...
 	passport.use(new LocalStrategy((username, password, done) => 
 	{
@@ -55,14 +60,16 @@ const express 			= 	require("express"),
 	app.use(bodyParser.urlencoded({extended: true}));
 	//Para subir archivo...
 	app.use(fileUpload());
+
 	//Para el manejo de las Cookies...
 	app.use(cookieParser());
-	app.use(session({
-						secret: '$2a$10$GsvafBLCODG.gUNlB987fORJjTiwjiKs42MjAIqTMB3lour44n39K',
-						cookie: { maxAge: 6000000 },
-						resave: true,
-						saveUninitialized: true
-					}));
+    app.use(session({
+                        secret: config.secret,
+                        cookie: { maxAge: 6000000 },
+                        resave: true,
+                        saveUninitialized: true, 
+                        store: new redisStore({ client: client , ttl :  260})
+                    }));
 	app.use(passport.initialize());
 	app.use(passport.session());
 	//Rutas/Servicios REST
